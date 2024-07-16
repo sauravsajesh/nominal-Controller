@@ -1,0 +1,66 @@
+class ControllerOptimalPredictive:
+    def compute_action(self, t, observation):
+        return self.action_curr
+
+class N_CTRL:
+    def pure_loop(self, observation, goal=[0, 0, 0]):
+        x_robot = observation[0]
+        y_robot = observation[1]
+        theta = observation[2]
+        x_goal = 0
+        y_goal = 0
+        theta_goal = 0
+
+        error_x = x_goal - x_robot
+        error_y = y_goal - y_robot
+        error_theta = theta_goal - theta
+
+        rho = np.sqrt(error_x**2 + error_y**2)
+        alpha = -theta + np.arctan2(error_y, error_x)
+        beta = error_theta - alpha
+
+        # k_rho = 2
+        # k_alpha = 14
+        # k_beta = -1.5
+
+        k_rho = 0.15
+        k_alpha = 0.17
+        k_beta = -0.05
+
+        w = k_alpha*alpha + k_beta*beta
+        v = k_rho*rho
+
+        while alpha > np.pi:
+            alpha -= 2* np.pi
+
+        while alpha < -np.pi:
+            alpha += 2* np.pi
+
+        if -np.pi < alpha <= -np.pi / 2 or np.pi / 2 < alpha <= np.pi:
+            v = -v
+
+        return [v,w]
+
+class Stanley_CTRL:
+    def __init__(self):
+        self.L = 1.0  # Distance between front and rear wheels
+        self.k = 2.7  # Control gain
+        self.v = 2.0  # Desired speed
+
+    def pure_loop(self, observation):
+        print("Target Point x: {}, y: {}, theta: {}".format(self.x_traj[target_dist], self.y_traj[target_dist], self.theta_traj[target_dist]))
+        print(dist_to_goal)
+        print(target_dist)
+
+        theta_error = theta_traj[target_dist] - theta
+        delta = theta_error + np.arctan(self.k * self.error(y_traj[target_dist], x_traj[target_dist], x_robot, y_robot, theta))
+        v=self.v
+        w=self.v * np.tan(delta) / self.L
+
+        return [v, delta]
+
+    def error(self, y_ref, x_ref, x_robot, y_robot, theta):
+        # y_ref=0
+        # x_ref=0
+        e_fa=(y_ref - y_robot) * np.cos(theta) - (x_ref - x_robot) * np.sin(theta)
+        return e_fa
