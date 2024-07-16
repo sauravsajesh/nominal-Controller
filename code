@@ -40,6 +40,18 @@ class N_CTRL:
             v = -v
 
         return [v,w]
+        def generate_trajectory(self):
+        R = 2.5  # radius (you can adjust this)
+        x_traj = R * np.cos(self.t)
+        y_traj = R * np.sin(self.t)
+        theta_traj = np.zeros(self.n)
+        for i in range(1, self.n):  # Start from 1 to avoid index -1
+            dy = y_traj[i] - y_traj[i-1]
+            dx = x_traj[i] - x_traj[i-1]
+            theta_traj[i] = np.arctan2(dy, dx)
+        print("Trajectory: ")
+        print(x_traj, y_traj, theta_traj)
+        return x_traj, y_traj, theta_traj
 
 class Stanley_CTRL:
     def __init__(self):
